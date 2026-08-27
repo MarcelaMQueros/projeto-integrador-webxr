@@ -6,6 +6,8 @@ import { XRScene } from './scene';
 import { setupControllers } from './controllers';
 import { setupARHitTest } from './ar';
 
+import './sonda';
+
 // --- Renderer ---
 const container = document.getElementById('app') as HTMLDivElement;
 
@@ -30,17 +32,58 @@ const controllers = setupControllers(renderer, xr.scene, xr.interactive);
 const arHitTest = setupARHitTest(renderer, xr.scene);
 
 // --- Botões VR e AR ---
-document.body.appendChild(VRButton.createButton(renderer));
+document.body.appendChild(
+  VRButton.createButton(renderer, {
+    optionalFeatures: ['local-floor', 'bounded-floor'] 
+  })
+);
+
 document.body.appendChild(
   ARButton.createButton(renderer, {
-    // Nada em requiredFeatures: uma feature exigida que o aparelho não tem
-    // desabilita o botão inteiro, e o aluno vê um botão morto sem saber por quê.
-    // Como opcional, a sessão sobe e a ausência fica observável.
     requiredFeatures: [],
     optionalFeatures: ['hit-test', 'local-floor', 'bounded-floor', 'dom-overlay'],
     domOverlay: { root: document.body },
   }),
 );
+
+//  ETAPA 4: CHECAGEM DE RECURSOS APÓS A SESSÃO ABRIR 
+renderer.xr.addEventListener('sessionstart', () => {
+  const session = renderer.xr.getSession();
+
+  if (session) {
+    const concedidos = (session as any).enabledFeatures;
+
+    const spanPiso = document.getElementById('status-piso');
+    const spanHitTest = document.getElementById('status-hit-test');
+
+    // 2. Lógica separada: Desconhecido vs Concedido vs Negado/Ausente
+    if (spanPiso) {
+      if (concedidos === undefined) {
+        // O navegador abriu a sessão, mas a API dele não suporta listar o que foi ativado
+        spanPiso.innerText = "❓ Desconhecido (Navegador não reporta)";
+      } else if (concedidos.includes('local-floor')) {
+        spanPiso.innerText = "✅ Concedido";
+      } else {
+        spanPiso.innerText = "❌ Negado/Ausente";
+      }
+    }
+
+    if (spanHitTest) {
+      if (concedidos === undefined) {
+        spanHitTest.innerText = "❓ Desconhecido (Navegador não reporta)";
+      } else if (concedidos.includes('hit-test')) {
+        spanHitTest.innerText = "✅ Concedido";
+      } else {
+        // Como você bem notou: se o usuário entrou por VR, cairá exatamente aqui, 
+        // pois hit-test sequer foi pedido no VRButton!
+        spanHitTest.innerText = "❌ Negado/Ausente"; 
+      }
+    }
+    
+    console.log("Sessão imersiva rodando. enabledFeatures:", concedidos);
+  }
+});
+//  FIM DA ETAPA 4 
 
 // --- Loop de animação (use setAnimationLoop, NÃO requestAnimationFrame) ---
 const clock = new THREE.Clock();
@@ -54,8 +97,12 @@ renderer.setAnimationLoop((_timestamp, frame) => {
 });
 
 // --- Responsividade ---
+// --- Responsividade ---
 window.addEventListener('resize', () => {
-  xr.camera.aspect = window.innerWidth / window.innerHeight;
-  xr.camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  // Só redimensiona o canvas e a câmera se NÃO estivermos no modo imersivo
+  if (!renderer.xr.isPresenting) {
+    xr.camera.aspect = window.innerWidth / window.innerHeight;
+    xr.camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 });

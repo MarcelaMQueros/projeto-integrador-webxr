@@ -4,10 +4,64 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ts</title>
+    <title>Quadro Elétrico WebXR</title>
+    
+    <!-- Recuperamos o bloco <style> fundamental para o 3D -->
+    <style>
+      body {
+        margin: 0;
+        background-color: #111;
+        color: #fff;
+        font-family: sans-serif;
+        overflow: hidden; /* Impede a barra de rolagem quando o 3D carregar */
+      }
+      
+      #info {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+        z-index: 100;
+        display: block;
+      }
+
+      /* Estilizamos o nosso painel para ele "flutuar" no canto da tela */
+      #painel-sonda-xr {
+        position: absolute;
+        top: 50px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
+        padding: 15px;
+        border-radius: 8px;
+        z-index: 100; /* Garante que fique por cima do Canvas 3D */
+      }
+      
+      #app {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
+    
+    <!-- 1. Div de informação original do seu guia -->
+    <div id="info">Clique em ENTER VR ou START AR...</div>
+    
+    <!-- 2. NOSSA SONDA: Agora ela é "irmã" do #app, não "filha" -->
+    <div id="painel-sonda-xr">
+      <h3>Sonda WebXR</h3>
+      <p><strong>API WebXR:</strong> <span id="status-api">⏳ Carregando...</span></p>
+      <p><strong>Suporte VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
+      <p><strong>Suporte AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
+    <!-- 👇 NOVAS LINHAS PARA A SESSÃO ABERTA 👇 -->
+      <hr style="border-color: #444; margin: 15px 0;">
+      <h4>Durante a Sessão</h4>
+      <p><strong>Piso (local-floor):</strong> <span id="status-piso">Aguardando...</span></p>
+      <p><strong>Sensores AR (hit-test):</strong> <span id="status-hit-test">Aguardando...</span></p></div>
+
+    <!-- 3. Contêiner isolado e exclusivo para receber o Canvas 3D do main.ts -->
     <div id="app"></div>
+    
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
