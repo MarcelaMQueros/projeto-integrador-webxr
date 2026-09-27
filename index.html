@@ -1,41 +1,115 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quadro Elétrico WebXR</title>
-    
-    <!-- Recuperamos o bloco <style> fundamental para o 3D -->
     <style>
       body {
         margin: 0;
         background-color: #111;
         color: #fff;
         font-family: sans-serif;
-        overflow: hidden; /* Impede a barra de rolagem quando o 3D carregar */
+        overflow: hidden;
       }
-      
+
       #info {
         position: absolute;
         top: 10px;
         width: 100%;
         text-align: center;
         z-index: 100;
-        display: block;
       }
 
-      /* Estilizamos o nosso painel para ele "flutuar" no canto da tela */
-      #painel-sonda-xr {
+      .painel {
         position: absolute;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 15px;
+        border-radius: 8px;
+        z-index: 100;
+        font-size: 14px;
+        max-width: 340px;
+      }
+
+      .painel p {
+        margin: 4px 0;
+      }
+
+      #painel-sonda-xr {
         top: 50px;
         left: 20px;
-        background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
-        padding: 15px;
-        border-radius: 8px;
-        z-index: 100; /* Garante que fique por cima do Canvas 3D */
       }
-      
+
+      #painel-estrutura {
+        top: 50px;
+        right: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      #painel-estrutura button {
+        display: block;
+        width: 100%;
+        margin: 6px 0;
+        padding: 8px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      #painel-estrutura pre {
+        font-size: 12px;
+        background: #1c1f27;
+        padding: 8px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+
+      #botao-paineis {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 200;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      .sem-paineis .painel {
+        display: none;
+      }
+
+      @media (max-width: 800px) {
+        .painel {
+          font-size: 11px;
+          max-width: 42vw;
+          max-height: 45vh;
+          overflow-y: auto;
+          padding: 8px;
+        }
+
+        .painel h3 {
+          margin: 0 0 6px 0;
+        }
+
+        #painel-sonda-xr {
+          left: 6px;
+        }
+
+        #painel-estrutura {
+          right: 6px;
+          max-height: 45vh;
+        }
+
+        #painel-estrutura button {
+          font-size: 11px;
+          padding: 6px;
+        }
+
+        #info {
+          display: none;
+        }
+      }
+
       #app {
         width: 100vw;
         height: 100vh;
@@ -43,25 +117,32 @@
     </style>
   </head>
   <body>
-    
-    <!-- 1. Div de informação original do seu guia -->
     <div id="info">Clique em ENTER VR ou START AR...</div>
-    
-    <!-- 2. NOSSA SONDA: Agora ela é "irmã" do #app, não "filha" -->
-    <div id="painel-sonda-xr">
+    <button id="botao-paineis" onclick="document.body.classList.toggle('sem-paineis')">Painéis</button>
+
+    <div id="painel-sonda-xr" class="painel">
       <h3>Sonda WebXR</h3>
       <p><strong>API WebXR:</strong> <span id="status-api">⏳ Carregando...</span></p>
-      <p><strong>Suporte VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
-      <p><strong>Suporte AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
-    <!-- 👇 NOVAS LINHAS PARA A SESSÃO ABERTA 👇 -->
-      <hr style="border-color: #444; margin: 15px 0;">
-      <h4>Durante a Sessão</h4>
-      <p><strong>Piso (local-floor):</strong> <span id="status-piso">Aguardando...</span></p>
-      <p><strong>Sensores AR (hit-test):</strong> <span id="status-hit-test">Aguardando...</span></p></div>
+      <p><strong>Regime VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
+      <p><strong>Regime AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
+      <hr style="border-color: #444; margin: 12px 0;">
+      <h4>Durante a sessão</h4>
+      <div id="lista-recursos"></div>
+      <p><strong>Fontes de entrada:</strong> <span id="status-fontes">Sem sessão aberta</span></p>
+      <p><strong>Graus de liberdade:</strong> <span id="status-graus">Sem sessão aberta</span></p>
+    </div>
 
-    <!-- 3. Contêiner isolado e exclusivo para receber o Canvas 3D do main.ts -->
+    <div id="painel-estrutura" class="painel">
+      <h3>Cena</h3>
+      <p id="mensagem">Clique numa peça da bancada</p>
+      <button id="botao-encaixar">Prender disjuntor-1 no trilho</button>
+      <button id="botao-mover">Mover o quadro</button>
+      <button id="botao-lenta">Simular máquina lenta</button>
+      <pre id="resultado-troca">Nenhuma troca de pai ainda</pre>
+    </div>
+
     <div id="app"></div>
-    
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

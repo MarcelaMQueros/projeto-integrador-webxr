@@ -1,15 +1,20 @@
 {
-  "name": "ts",
+  "name": "projeto-integrador-webxr",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
-  "dev": "vite --host",
-  "build": "tsc --noEmit && vite build",
-  "preview": "vite preview --host",
-  "typecheck": "tsc --noEmit"
-},
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
   "devDependencies": {
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.2"
   }
