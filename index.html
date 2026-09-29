@@ -36,6 +36,11 @@
         margin: 4px 0;
       }
 
+      #painel-sonda-xr {
+        top: 50px;
+        left: 20px;
+      }
+
       #painel-estrutura {
         top: 50px;
         right: 20px;
@@ -110,6 +115,18 @@
   <body>
     <div id="info">Use os botões para entrar em VR/AR e montar o quadro</div>
     <button id="botao-paineis" onclick="document.body.classList.toggle('sem-paineis')">Painéis</button>
+
+    <div id="painel-sonda-xr" class="painel">
+      <h3>Sonda WebXR</h3>
+      <p><strong>API WebXR:</strong> <span id="status-api">⏳ Carregando...</span></p>
+      <p><strong>Regime VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
+      <p><strong>Regime AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
+      <hr style="border-color: #444; margin: 12px 0;">
+      <h4>Durante a sessão</h4>
+      <div id="lista-recursos"></div>
+      <p><strong>Fontes de entrada:</strong> <span id="status-fontes">Sem sessão aberta</span></p>
+      <p><strong>Graus de liberdade:</strong> <span id="status-graus">Sem sessão aberta</span></p>
+    </div>
 
     <div id="painel-estrutura" class="painel">
       <h3>Cena</h3>

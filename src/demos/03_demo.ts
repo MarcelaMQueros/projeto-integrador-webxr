@@ -8,6 +8,13 @@ import { trocarDePai, vetorEmTexto } from '../hierarquia';
 import { Orcamento, TETO_TELA_MS, TETO_VISOR_MS, TETO_DE_SALTO_S } from '../orcamento';
 import { IndicadorDeCusto } from '../indicador';
 import { Montagem } from '../montagem';
+import {
+  sondarNavegador,
+  exibirSondaNaTela,
+  registrarRecursos,
+  registrarFontesDeEntrada,
+  registrarGraus,
+} from '../sonda';
 
 const PEDIDOS_VR = ['local-floor', 'bounded-floor'];
 const PEDIDOS_AR = ['hit-test', 'local-floor', 'bounded-floor', 'dom-overlay'];
@@ -30,6 +37,10 @@ xr.parede.add(indicador.malha);
 const orbit = new OrbitControls(xr.camera, renderer.domElement);
 orbit.target.set(0, 1.15, -0.8);
 orbit.update();
+
+sondarNavegador().then(() => {
+  exibirSondaNaTela();
+});
 
 const montagem = new Montagem(xr);
 const textoMensagem = document.getElementById('mensagem') as HTMLParagraphElement;
@@ -114,6 +125,18 @@ renderer.xr.addEventListener('sessionstart', () => {
   if (ultimosPedidos === PEDIDOS_AR) {
     precisaColocarNaFrente = true;
   }
+
+  const session = renderer.xr.getSession();
+  if (session) {
+    registrarRecursos(session, ultimosPedidos);
+    registrarFontesDeEntrada(session);
+    exibirSondaNaTela();
+
+    session.addEventListener('inputsourceschange', () => {
+      registrarFontesDeEntrada(session);
+      exibirSondaNaTela();
+    });
+  }
 });
 
 renderer.xr.addEventListener('sessionend', () => {
@@ -174,6 +197,10 @@ const clock = new THREE.Clock();
 const orcamento = new Orcamento();
 
 renderer.setAnimationLoop((_timestamp, frame) => {
+  if (frame && registrarGraus(frame, renderer.xr.getReferenceSpace())) {
+    exibirSondaNaTela();
+  }
+
   const inicio = performance.now();
 
   const intervalo = clock.getDelta();
