@@ -7,7 +7,7 @@ Grupo: Marcela Queros e Virgilio.
 
 Estado atual: fim do Módulo 03 (etiqueta `modulo-03`).
 A cena já aparece na tela, montada como árvore, com a sonda de capacidades e o indicador de custo do quadro dentro da cena.
-Já dá para montar o quadro inteiro com cliques: disjuntores no trilho, barramento e fios. Quando tudo está no lugar, a caixa fica verde e aparece "Circuito Fechado!".
+Cada peça (disjuntores, barramento, fios) pode ser colocada no trilho por um botão dedicado no painel — é a troca de pai (`trocarDePai`) que este módulo pede. Ainda não há clique/toque na peça dentro da cena 3D, realce de cor nem checagem de que a montagem terminou; isso fica para os Blocos D e E (raycaster e regras de encaixe), como já previsto na Seção 13 da especificação.
 
 Especificação completa: [docs/especificacao.md](docs/especificacao.md)
 Diário de decisões: [decisoes.md](decisoes.md)
@@ -47,19 +47,9 @@ Botões:
 
 ## Como montar o quadro
 
-Clique numa peça da bancada (ela fica amarela). As vagas onde ela pode entrar aparecem em verde. Clique numa vaga verde para encaixar, ou na mesa para devolver a peça.
+Por enquanto a montagem é por botão, um para cada peça: "Colocar disjuntor 1/2/3", "Colocar barramento" e "Ligar fio 1..6". Cada botão chama `trocarDePai` e move a peça para a posição fixa da sua vaga — não há clique na peça dentro da cena, realce de cor (amarelo/verde) nem checagem de que o circuito fechou. Isso é o que este módulo pede (a troca de pai preservando a posição no mundo); o encaixe por raycaster, com as folgas da Seção 7 da especificação e a validação da tarefa completa, fica para os Blocos D e E.
 
-1. Os 3 disjuntores entram nas vagas do trilho.
-2. O barramento só aceita quando os 3 disjuntores estão encostados (vagas vizinhas).
-3. Os 6 fios entram nos bornes dos disjuntores encaixados (2 por disjuntor).
-
-Um disjuntor com barramento ou fio ligado fica travado: para mudar ele de lugar, tire antes o barramento e os fios.
-
-No VR é igual, apontando com o raio do controle e apertando o gatilho. No AR a cena aparece em miniatura (1:3) na sua frente.
-
-O barramento (a peça laranja) vai embaixo dos 3 disjuntores e só aparece a vaga dele quando os 3 estão em vagas vizinhas.
-
-O mouse gira a câmera (botão esquerdo), arrasta (botão direito) e aproxima (rodinha). No celular: 1 dedo gira, pinça com 2 dedos aproxima. O botão "Painéis" esconde os painéis.
+O mouse gira a câmera (botão esquerdo), arrasta (botão direito) e aproxima (rodinha). No celular: 1 dedo gira, pinça com 2 dedos aproxima.
 
 
 ## Aparelhos testados
@@ -67,11 +57,11 @@ O mouse gira a câmera (botão esquerdo), arrasta (botão direito) e aproxima (r
 | Aparelho | Regime que abriu | O que não abriu |
 |---|---|---|
 |  PC , Windows, Chrome [versão] | Tela: cena, sonda, troca de pai, montagem e indicador funcionando|
-|  Celular [POCO F3], Android , Chrome  | Tela: cena, sonda e botões funcionando | Montar as peças pelo toque ficou difícil: as peças ficam pequenas demais na tela 
+|  Celular [POCO F3], Android , Chrome  | Tela: cena, sonda e botões funcionando, montagem pelos botões do painel | Não testado: montagem por toque direto na peça (ainda não existe nesta versão) 
 
 ## Arquivos principais
 
-- `src/main.ts`: cria o renderer, liga os botões e roda o laço de animação.
+- `src/demos/03_demo.ts`: cria o renderer, liga os botões e roda o laço de animação.
 - `src/scene.ts`: monta a árvore da cena (parede, quadro, trilho, bancada e peças).
 - `src/hierarquia.ts`: troca de pai preservando a posição no mundo.
 - `src/montagem.ts`: o encaixe por clique e a conferência da tarefa.

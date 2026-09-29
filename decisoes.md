@@ -99,17 +99,24 @@ O que NÃO foi feito (limitações conhecidas):
 - Troca de pai medida de novo: (-0.3000, 0.7900, -0.5000) antes e depois,
   diferença 0.00e+0 m.
 
-[26/09/2026] — Encaixe por dois cliques
+[26/09/2026] — Colocação das peças por botão
 
-- Criado src/montagem.ts. Clica na peça (fica amarela), as vagas livres
-  aparecem em verde, clica na vaga. A peça troca de pai (trocarDePai) e vai
-  para a posição da vaga. Nada passa por dentro do quadro porque a peça não
-  fica solta no ar.
-- Vale para mouse (tela) e gatilho do controle (VR).
-- Regras da Seção 6: barramento só com os 3 disjuntores encostados; fios só
-  em disjuntor encaixado; disjuntor com barramento ou fio fica travado.
-- Tarefa concluída: caixa fica verde e aparece "Circuito Fechado!".
-- Testado com cliques de verdade no navegador, do começo ao fim.
+- Criado src/montagem.ts. Cada peça tem um botão próprio no painel
+  ("Colocar disjuntor 1/2/3", "Colocar barramento", "Ligar fio 1..6"). Ao
+  clicar, a peça troca de pai (trocarDePai) e vai direto para a posição fixa
+  da sua vaga. Nada passa por dentro do quadro porque a peça não fica solta
+  no ar.
+- Vale para mouse e toque (são botões HTML), e para o gatilho do controle
+  só no sentido de que o app continua funcionando em VR — não há raycaster
+  disparando esses botões pelo controle.
+- Ainda não implementado: clique/toque na peça dentro da cena 3D, realce de
+  cor (peça mirada ou vaga livre), as regras de bloqueio da Seção 6
+  (barramento só com os 3 disjuntores encostados, fio só em disjuntor
+  encaixado, peça travada quando tem barramento ou fio) e a checagem de
+  tarefa concluída ("Circuito Fechado!"). Isso fica para os Blocos D e E,
+  como já estava no plano da Seção 13 da especificação — a entrada anterior
+  deste diário descrevia esse mecanismo como pronto neste módulo, o que não
+  é verdade para o código que foi de fato entregue; corrigido aqui.
 
 [26/09/2026] — AR na frente e barramento maior
 
@@ -125,7 +132,7 @@ O que NÃO foi feito (limitações conhecidas):
 [26/09/2026] — Controles de volta
 
 - Ao tirar controllers.ts sumiram os modelos 3D dos controles. Voltaram com
-  XRControllerModelFactory, direto no main.ts (os modelos vêm da internet).
+  XRControllerModelFactory, direto no src/demos/03_demo.ts (os modelos vêm da internet).
 - Encolher a sala inteira no AR levava os controles junto. Voltei o nó
   "mundo" (pai da parede e da bancada): no AR só ele encolhe e se move, e os
   controles ficam fora dele.
@@ -140,13 +147,12 @@ O que NÃO foi feito (limitações conhecidas):
 - A cena continua a mesma: o motivo da escolha (folga de encaixe mais larga
   e pouca prática em modelagem 3D) vale para os dois.
 
-[26/09/2026] — Montar pelo celular
+[26/09/2026] — Montar pelo celular (revertido)
 
-- No celular a peça ficava amarela, mas ao fazer a pinça para chegar perto do
-  quadro um dos dedos era lido como toque no vazio e cancelava a seleção.
-  Agora o main.ts conta quantos dedos estão na tela: gesto com dois dedos
-  nunca vira clique. A folga para diferenciar toque de arrasto subiu de 5 para
-  10 pixels, porque o dedo mexe mais que o mouse.
-- Testado com toque e pinça simulados no navegador: seleciona, faz a pinça e
-  encaixa na vaga.
+- Havia uma correção planejada para o celular (contar dedos na tela para a
+  pinça não cancelar a seleção da peça). Ela dependia do clique/toque direto
+  na peça dentro da cena, que foi trocado pelos botões do painel (entrada
+  anterior deste diário). Como a montagem agora é só por botão, essa
+  correção de toque não se aplica e não está no código entregue; a entrada
+  original dizia o contrário, corrigido aqui.
 
