@@ -125,3 +125,4 @@ export function exibirSondaNaTela() {
     spanGraus.innerText = capacidades.grausDeLiberdade;
   }
 }
+

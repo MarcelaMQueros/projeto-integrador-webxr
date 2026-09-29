@@ -16,3 +16,4 @@ export function trocarDePai(objeto: THREE.Object3D, novoPai: THREE.Object3D) {
 export function vetorEmTexto(v: THREE.Vector3) {
   return '(' + v.x.toFixed(4) + ', ' + v.y.toFixed(4) + ', ' + v.z.toFixed(4) + ')';
 }
+

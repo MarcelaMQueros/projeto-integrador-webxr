@@ -43,3 +43,4 @@ export class Montagem {
     this.mensagem = fio.name + ' ligado no ' + disjuntor.name;
   }
 }
+

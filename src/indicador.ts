@@ -62,3 +62,4 @@ export class IndicadorDeCusto {
     this.textura.needsUpdate = true;
   }
 }
+
