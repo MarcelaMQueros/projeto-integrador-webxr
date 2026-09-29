@@ -23,18 +23,19 @@ export const capacidades: RelatorioCapacidades = {
   grausDeLiberdade: 'Sem sessão aberta',
 };
 
-export async function sondarNavegador(): Promise<void> {
-  if ('xr' in navigator && navigator.xr) {
+export async function sondarNavegador() {
+  if (navigator.xr) {
     capacidades.possuiAPI = true;
     capacidades.suportaVR = await navigator.xr.isSessionSupported('immersive-vr');
     capacidades.suportaAR = await navigator.xr.isSessionSupported('immersive-ar');
   }
 }
 
-export function registrarRecursos(session: XRSession, pedidos: string[]): void {
+export function registrarRecursos(session: XRSession, pedidos: string[]) {
   const concedidos = session.enabledFeatures;
 
-  for (const nome of RECURSOS_CONSULTADOS) {
+  for (let i = 0; i < RECURSOS_CONSULTADOS.length; i++) {
+    const nome = RECURSOS_CONSULTADOS[i];
     let estado = '❌ Negado (pedido e recusado)';
     if (!pedidos.includes(nome)) {
       estado = '➖ Não pedido nesta sessão';
@@ -47,9 +48,10 @@ export function registrarRecursos(session: XRSession, pedidos: string[]): void {
   }
 }
 
-export function registrarFontesDeEntrada(session: XRSession): void {
+export function registrarFontesDeEntrada(session: XRSession) {
   capacidades.fontesDeEntrada = [];
-  for (const fonte of session.inputSources) {
+  for (let i = 0; i < session.inputSources.length; i++) {
+    const fonte = session.inputSources[i];
     capacidades.fontesDeEntrada.push(fonte.handedness + ' / ' + fonte.targetRayMode);
   }
   if (capacidades.fontesDeEntrada.length === 0) {
@@ -57,7 +59,7 @@ export function registrarFontesDeEntrada(session: XRSession): void {
   }
 }
 
-export function registrarGraus(frame: XRFrame, referencia: XRReferenceSpace | null): boolean {
+export function registrarGraus(frame: XRFrame, referencia: XRReferenceSpace | null) {
   if (referencia === null) {
     return false;
   }
@@ -65,7 +67,12 @@ export function registrarGraus(frame: XRFrame, referencia: XRReferenceSpace | nu
   if (!pose) {
     return false;
   }
-  const novo = pose.emulatedPosition ? '3 (só rotação)' : '6 (rotação e posição)';
+
+  let novo = '6 (rotação e posição)';
+  if (pose.emulatedPosition) {
+    novo = '3 (só rotação)';
+  }
+
   if (novo === capacidades.grausDeLiberdade) {
     return false;
   }
@@ -73,7 +80,7 @@ export function registrarGraus(frame: XRFrame, referencia: XRReferenceSpace | nu
   return true;
 }
 
-function textoDoRegime(suporta: boolean): string {
+function textoDoRegime(suporta: boolean) {
   if (!capacidades.possuiAPI) {
     return '❌ Ausente (sem API WebXR)';
   }
@@ -83,7 +90,7 @@ function textoDoRegime(suporta: boolean): string {
   return '❌ Ausente (aparelho não declara)';
 }
 
-export function exibirSondaNaTela(): void {
+export function exibirSondaNaTela() {
   const spanApi = document.getElementById('status-api');
   const spanVr = document.getElementById('status-vr');
   const spanAr = document.getElementById('status-ar');
@@ -92,7 +99,11 @@ export function exibirSondaNaTela(): void {
   const spanGraus = document.getElementById('status-graus');
 
   if (spanApi) {
-    spanApi.innerText = capacidades.possuiAPI ? '✅ Encontrada' : '❌ Inexistente';
+    if (capacidades.possuiAPI) {
+      spanApi.innerText = 'Encontrada';
+    } else {
+      spanApi.innerText = 'Inexistente';
+    }
   }
   if (spanVr) {
     spanVr.innerText = textoDoRegime(capacidades.suportaVR);
@@ -102,7 +113,8 @@ export function exibirSondaNaTela(): void {
   }
   if (listaRecursos) {
     listaRecursos.innerText = '';
-    for (const nome of RECURSOS_CONSULTADOS) {
+    for (let i = 0; i < RECURSOS_CONSULTADOS.length; i++) {
+      const nome = RECURSOS_CONSULTADOS[i];
       listaRecursos.innerText += nome + ': ' + capacidades.recursos[nome] + '\n';
     }
   }

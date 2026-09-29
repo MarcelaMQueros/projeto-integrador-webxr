@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quadro Elétrico WebXR</title>
+    <title>Quadro Elétrico WebXR — Módulo 3</title>
     <style>
       body {
         margin: 0;
@@ -34,11 +34,6 @@
 
       .painel p {
         margin: 4px 0;
-      }
-
-      #painel-sonda-xr {
-        top: 50px;
-        left: 20px;
       }
 
       #painel-estrutura {
@@ -91,10 +86,6 @@
           margin: 0 0 6px 0;
         }
 
-        #painel-sonda-xr {
-          left: 6px;
-        }
-
         #painel-estrutura {
           right: 6px;
           max-height: 45vh;
@@ -117,24 +108,22 @@
     </style>
   </head>
   <body>
-    <div id="info">Clique em ENTER VR ou START AR...</div>
+    <div id="info">Use os botões para entrar em VR/AR e montar o quadro</div>
     <button id="botao-paineis" onclick="document.body.classList.toggle('sem-paineis')">Painéis</button>
-
-    <div id="painel-sonda-xr" class="painel">
-      <h3>Sonda WebXR</h3>
-      <p><strong>API WebXR:</strong> <span id="status-api">⏳ Carregando...</span></p>
-      <p><strong>Regime VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
-      <p><strong>Regime AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
-      <hr style="border-color: #444; margin: 12px 0;">
-      <h4>Durante a sessão</h4>
-      <div id="lista-recursos"></div>
-      <p><strong>Fontes de entrada:</strong> <span id="status-fontes">Sem sessão aberta</span></p>
-      <p><strong>Graus de liberdade:</strong> <span id="status-graus">Sem sessão aberta</span></p>
-    </div>
 
     <div id="painel-estrutura" class="painel">
       <h3>Cena</h3>
-      <p id="mensagem">Clique numa peça da bancada</p>
+      <p id="mensagem">Escolha uma peça para colocar</p>
+      <button id="botao-disjuntor-1">Colocar disjuntor 1</button>
+      <button id="botao-disjuntor-2">Colocar disjuntor 2</button>
+      <button id="botao-disjuntor-3">Colocar disjuntor 3</button>
+      <button id="botao-barramento">Colocar barramento</button>
+      <button id="botao-fio-1">Ligar fio 1</button>
+      <button id="botao-fio-2">Ligar fio 2</button>
+      <button id="botao-fio-3">Ligar fio 3</button>
+      <button id="botao-fio-4">Ligar fio 4</button>
+      <button id="botao-fio-5">Ligar fio 5</button>
+      <button id="botao-fio-6">Ligar fio 6</button>
       <button id="botao-encaixar">Prender disjuntor-1 no trilho</button>
       <button id="botao-mover">Mover o quadro</button>
       <button id="botao-lenta">Simular máquina lenta</button>
@@ -143,6 +132,6 @@
 
     <div id="app"></div>
 
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/demos/03_demo.ts"></script>
   </body>
 </html>

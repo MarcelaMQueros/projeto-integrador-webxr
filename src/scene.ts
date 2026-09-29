@@ -5,45 +5,44 @@ export const ALTURA_DA_BANCADA = 0.75;
 const TOPO_DO_TAMPO = 0.02;
 export const FRENTE_DO_TRILHO = 0.0075 / 2 + 0.075 / 2;
 
-export function xDaVaga(indice: number): number {
+export function xDaVaga(indice: number) {
   return -0.045 + indice * 0.018;
 }
 
-export class XRScene {
-  readonly scene = new THREE.Scene();
-  readonly camera: THREE.PerspectiveCamera;
+function materialDeVaga() {
+  return new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.45 });
+}
 
-  readonly mundo = new THREE.Group();
-  readonly parede: THREE.Mesh;
-  readonly quadro = new THREE.Group();
-  readonly fundo: THREE.Mesh;
-  readonly trilho: THREE.Mesh;
-  readonly bancada = new THREE.Group();
-  readonly tampo: THREE.Mesh;
-  readonly disjuntores: THREE.Mesh[] = [];
-  readonly fios: THREE.Mesh[] = [];
-  readonly barramento: THREE.Mesh;
-  readonly vagas: THREE.Mesh[] = [];
-  readonly vagaBarramento: THREE.Mesh;
-  readonly bornes: THREE.Mesh[] = [];
+export class XRScene {
+  scene = new THREE.Scene();
+  camera: THREE.PerspectiveCamera;
+
+  mundo = new THREE.Group();
+  parede: THREE.Mesh;
+  quadro = new THREE.Group();
+  fundo: THREE.Mesh;
+  trilho: THREE.Mesh;
+  bancada = new THREE.Group();
+  tampo: THREE.Mesh;
+  disjuntores: THREE.Mesh[] = [];
+  fios: THREE.Mesh[] = [];
+  barramento: THREE.Mesh;
+  vagas: THREE.Mesh[] = [];
+  vagaBarramento: THREE.Mesh;
+  bornes: THREE.Mesh[] = [];
 
   moverQuadro = false;
-  private tempoMovendo = 0;
+  tempoMovendo = 0;
 
   constructor() {
     this.scene.name = 'sala';
     this.scene.background = new THREE.Color(0x101015);
 
-    this.camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.01,
-      100,
-    );
+    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
     this.camera.position.set(0, 1.4, 0.6);
 
-    this.addLights();
-    this.addFloor();
+    this.criarLuzes();
+    this.criarChao();
 
     this.mundo.name = 'mundo';
     this.scene.add(this.mundo);
@@ -61,36 +60,35 @@ export class XRScene {
     this.guardarRepouso();
   }
 
-  private addLights(): void {
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444455, 1.0);
-    hemi.name = 'luz-ambiente';
-    hemi.position.set(0, 1, 0);
-    this.scene.add(hemi);
+  criarLuzes() {
+    const luzAmbiente = new THREE.HemisphereLight(0xffffff, 0x444455, 1.0);
+    luzAmbiente.name = 'luz-ambiente';
+    luzAmbiente.position.set(0, 1, 0);
+    this.scene.add(luzAmbiente);
 
-    const dir = new THREE.DirectionalLight(0xffffff, 1.5);
-    dir.name = 'luz-direcional';
-    dir.position.set(1, 3, 2);
-    this.scene.add(dir);
+    const luzDirecional = new THREE.DirectionalLight(0xffffff, 1.5);
+    luzDirecional.name = 'luz-direcional';
+    luzDirecional.position.set(1, 3, 2);
+    this.scene.add(luzDirecional);
   }
 
-  private addFloor(): void {
-    const grid = new THREE.GridHelper(10, 20, 0x4f7cff, 0x2a2a35);
-    grid.name = 'chao';
-    this.scene.add(grid);
+  criarChao() {
+    const chao = new THREE.GridHelper(10, 20, 0x4f7cff, 0x2a2a35);
+    chao.name = 'chao';
+    this.scene.add(chao);
   }
 
-  private criarParede(): THREE.Mesh {
-    const parede = new THREE.Mesh(
-      new THREE.BoxGeometry(3, 2.5, 0.1),
-      new THREE.MeshStandardMaterial({ color: 0x3a3d48 }),
-    );
+  criarParede() {
+    const geometria = new THREE.BoxGeometry(3, 2.5, 0.1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x3a3d48 });
+    const parede = new THREE.Mesh(geometria, material);
     parede.name = 'parede';
     parede.position.set(0, 1.25, -0.95);
     this.mundo.add(parede);
     return parede;
   }
 
-  private criarQuadro(): THREE.Mesh {
+  criarQuadro() {
     this.quadro.name = 'quadro';
     this.quadro.position.set(0, ALTURA_DO_QUADRO - 1.25, 0.1);
     this.parede.add(this.quadro);
@@ -125,18 +123,17 @@ export class XRScene {
     return fundo;
   }
 
-  private criarTrilho(): THREE.Mesh {
-    const trilho = new THREE.Mesh(
-      new THREE.BoxGeometry(0.28, 0.035, 0.0075),
-      new THREE.MeshStandardMaterial({ color: 0x9aa0a6, metalness: 0.6, roughness: 0.4 }),
-    );
+  criarTrilho() {
+    const geometria = new THREE.BoxGeometry(0.28, 0.035, 0.0075);
+    const material = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, metalness: 0.6, roughness: 0.4 });
+    const trilho = new THREE.Mesh(geometria, material);
     trilho.name = 'trilho-din';
     trilho.position.z = 0.005 + 0.0075 / 2;
     this.fundo.add(trilho);
     return trilho;
   }
 
-  private criarBancada(): THREE.Mesh {
+  criarBancada() {
     this.bancada.name = 'bancada';
     this.bancada.position.set(0, 0, -0.6);
     this.mundo.add(this.bancada);
@@ -165,13 +162,11 @@ export class XRScene {
     return tampo;
   }
 
-  private criarDisjuntores(): void {
+  criarDisjuntores() {
     const geometria = new THREE.BoxGeometry(0.018, 0.08, 0.075);
     for (let i = 0; i < 3; i++) {
-      const disjuntor = new THREE.Mesh(
-        geometria,
-        new THREE.MeshStandardMaterial({ color: 0xf2f2f2 }),
-      );
+      const material = new THREE.MeshStandardMaterial({ color: 0xf2f2f2 });
+      const disjuntor = new THREE.Mesh(geometria, material);
       disjuntor.name = 'disjuntor-' + (i + 1);
       disjuntor.userData.tipo = 'disjuntor';
       disjuntor.userData.vaga = -1;
@@ -181,11 +176,10 @@ export class XRScene {
     }
   }
 
-  private criarBarramento(): THREE.Mesh {
-    const barramento = new THREE.Mesh(
-      new THREE.BoxGeometry(0.054, 0.012, 0.015),
-      new THREE.MeshStandardMaterial({ color: 0xc9822b, metalness: 0.5 }),
-    );
+  criarBarramento() {
+    const geometria = new THREE.BoxGeometry(0.054, 0.012, 0.015);
+    const material = new THREE.MeshStandardMaterial({ color: 0xc9822b, metalness: 0.5 });
+    const barramento = new THREE.Mesh(geometria, material);
     barramento.name = 'barramento';
     barramento.userData.tipo = 'barramento';
     barramento.userData.encaixado = false;
@@ -194,14 +188,12 @@ export class XRScene {
     return barramento;
   }
 
-  private criarFios(): void {
+  criarFios() {
     const geometria = new THREE.CylinderGeometry(0.0018, 0.0018, 0.15, 12);
     const cores = [0xd62828, 0x1d4ed8];
     for (let i = 0; i < 6; i++) {
-      const fio = new THREE.Mesh(
-        geometria,
-        new THREE.MeshStandardMaterial({ color: cores[i % 2] }),
-      );
+      const material = new THREE.MeshStandardMaterial({ color: cores[i % 2] });
+      const fio = new THREE.Mesh(geometria, material);
       fio.name = 'fio-' + (i + 1);
       fio.userData.tipo = 'fio';
       fio.userData.borne = null;
@@ -212,7 +204,7 @@ export class XRScene {
     }
   }
 
-  private criarVagas(): void {
+  criarVagas() {
     const geometria = new THREE.BoxGeometry(0.018, 0.08, 0.075);
     for (let i = 0; i < 6; i++) {
       const vaga = new THREE.Mesh(geometria, materialDeVaga());
@@ -226,8 +218,9 @@ export class XRScene {
     }
   }
 
-  private criarVagaBarramento(): THREE.Mesh {
-    const vaga = new THREE.Mesh(new THREE.BoxGeometry(0.054, 0.012, 0.015), materialDeVaga());
+  criarVagaBarramento() {
+    const geometria = new THREE.BoxGeometry(0.054, 0.012, 0.015);
+    const vaga = new THREE.Mesh(geometria, materialDeVaga());
     vaga.name = 'vaga-barramento';
     vaga.userData.tipo = 'vaga-barramento';
     vaga.position.set(0, -0.046, FRENTE_DO_TRILHO + 0.02);
@@ -236,15 +229,17 @@ export class XRScene {
     return vaga;
   }
 
-  private criarBornes(): void {
+  criarBornes() {
     const geometria = new THREE.BoxGeometry(0.012, 0.008, 0.004);
-    for (const disjuntor of this.disjuntores) {
-      for (const y of [0.03, -0.03]) {
+    const alturas = [0.03, -0.03];
+    for (let i = 0; i < this.disjuntores.length; i++) {
+      const disjuntor = this.disjuntores[i];
+      for (let j = 0; j < alturas.length; j++) {
         const borne = new THREE.Mesh(geometria, materialDeVaga());
         borne.name = 'borne';
         borne.userData.tipo = 'borne';
         borne.userData.fio = null;
-        borne.position.set(0, y, 0.0375);
+        borne.position.set(0, alturas[j], 0.0375);
         borne.visible = false;
         disjuntor.add(borne);
         this.bornes.push(borne);
@@ -252,23 +247,26 @@ export class XRScene {
     }
   }
 
-  private guardarRepouso(): void {
-    const pecas = [...this.disjuntores, this.barramento, ...this.fios];
-    for (const peca of pecas) {
-      peca.userData.repouso = peca.position.clone();
-      peca.userData.giroRepouso = peca.rotation.clone();
+  guardarRepouso() {
+    const pecas: THREE.Mesh[] = [];
+    for (let i = 0; i < this.disjuntores.length; i++) {
+      pecas.push(this.disjuntores[i]);
+    }
+    pecas.push(this.barramento);
+    for (let i = 0; i < this.fios.length; i++) {
+      pecas.push(this.fios[i]);
+    }
+
+    for (let i = 0; i < pecas.length; i++) {
+      pecas[i].userData.repouso = pecas[i].position.clone();
+      pecas[i].userData.giroRepouso = pecas[i].rotation.clone();
     }
   }
 
-  update(delta: number): void {
+  update(delta: number) {
     if (this.moverQuadro) {
       this.tempoMovendo += delta;
-      const x = Math.sin(this.tempoMovendo * 0.8) * 0.25;
-      this.quadro.position.x = x;
+      this.quadro.position.x = Math.sin(this.tempoMovendo * 0.8) * 0.25;
     }
   }
-}
-
-function materialDeVaga(): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.45 });
 }

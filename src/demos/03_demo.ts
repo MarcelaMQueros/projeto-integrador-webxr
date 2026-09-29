@@ -3,18 +3,11 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
-import { XRScene } from './scene';
-import {
-  sondarNavegador,
-  exibirSondaNaTela,
-  registrarRecursos,
-  registrarFontesDeEntrada,
-  registrarGraus,
-} from './sonda';
-import { trocarDePai, vetorEmTexto } from './hierarquia';
-import { Orcamento, TETO_TELA_MS, TETO_VISOR_MS, TETO_DE_SALTO_S } from './orcamento';
-import { IndicadorDeCusto } from './indicador';
-import { Montagem } from './montagem';
+import { XRScene } from '../scene';
+import { trocarDePai, vetorEmTexto } from '../hierarquia';
+import { Orcamento, TETO_TELA_MS, TETO_VISOR_MS, TETO_DE_SALTO_S } from '../orcamento';
+import { IndicadorDeCusto } from '../indicador';
+import { Montagem } from '../montagem';
 
 const PEDIDOS_VR = ['local-floor', 'bounded-floor'];
 const PEDIDOS_AR = ['hit-test', 'local-floor', 'bounded-floor', 'dom-overlay'];
@@ -40,78 +33,42 @@ orbit.update();
 
 const montagem = new Montagem(xr);
 const textoMensagem = document.getElementById('mensagem') as HTMLParagraphElement;
-const raycaster = new THREE.Raycaster();
 
-function primeiroVisivel(acertos: THREE.Intersection[]): THREE.Object3D | null {
-  for (const acerto of acertos) {
-    if (acerto.object.visible) {
-      return acerto.object;
-    }
-  }
-  return null;
-}
-
-function clicarEm(objeto: THREE.Object3D | null): void {
-  montagem.clicar(objeto);
+function atualizarMensagem() {
   textoMensagem.innerText = montagem.mensagem;
 }
 
-let inicioX = 0;
-let inicioY = 0;
-let dedos = 0;
-let foiGesto = false;
-renderer.domElement.addEventListener('pointerdown', (evento) => {
-  dedos++;
-  if (dedos === 1) {
-    inicioX = evento.clientX;
-    inicioY = evento.clientY;
-    foiGesto = false;
-  } else {
-    foiGesto = true;
-  }
+for (let i = 0; i < 3; i++) {
+  const botao = document.getElementById('botao-disjuntor-' + (i + 1)) as HTMLButtonElement;
+  botao.addEventListener('click', () => {
+    montagem.colocarDisjuntor(i);
+    atualizarMensagem();
+  });
+}
+
+const botaoBarramento = document.getElementById('botao-barramento') as HTMLButtonElement;
+botaoBarramento.addEventListener('click', () => {
+  montagem.colocarBarramento();
+  atualizarMensagem();
 });
-renderer.domElement.addEventListener('pointercancel', () => {
-  dedos = Math.max(0, dedos - 1);
-});
-renderer.domElement.addEventListener('pointerup', (evento) => {
-  dedos = Math.max(0, dedos - 1);
-  if (foiGesto) {
-    return;
-  }
-  const andou = Math.abs(evento.clientX - inicioX) + Math.abs(evento.clientY - inicioY);
-  if (andou > 10) {
-    return;
-  }
-  const ponteiro = new THREE.Vector2(
-    (evento.clientX / window.innerWidth) * 2 - 1,
-    -(evento.clientY / window.innerHeight) * 2 + 1,
-  );
-  raycaster.setFromCamera(ponteiro, xr.camera);
-  clicarEm(primeiroVisivel(raycaster.intersectObjects(montagem.alvos(), false)));
-});
+
+for (let i = 0; i < 6; i++) {
+  const botao = document.getElementById('botao-fio-' + (i + 1)) as HTMLButtonElement;
+  botao.addEventListener('click', () => {
+    montagem.colocarFio(i);
+    atualizarMensagem();
+  });
+}
 
 const fabricaDeControles = new XRControllerModelFactory();
 
 for (let i = 0; i < 2; i++) {
   const controle = renderer.xr.getController(i);
-  const raio = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
-    new THREE.LineBasicMaterial({ color: 0xffffff }),
-  );
-  raio.scale.z = 3;
-  controle.add(raio);
   xr.scene.add(controle);
 
   const punho = renderer.xr.getControllerGrip(i);
   punho.add(fabricaDeControles.createControllerModel(punho));
   xr.scene.add(punho);
-
-  controle.addEventListener('select', () => {
-    const giro = new THREE.Matrix4().extractRotation(controle.matrixWorld);
-    raycaster.ray.origin.setFromMatrixPosition(controle.matrixWorld);
-    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(giro);
-    clicarEm(primeiroVisivel(raycaster.intersectObjects(montagem.alvos(), false)));
-  });
 }
 
 const botaoVR = VRButton.createButton(renderer, {
@@ -130,7 +87,7 @@ document.body.appendChild(botaoAR);
 let ultimosPedidos: string[] = [];
 let precisaColocarNaFrente = false;
 
-function colocarNaFrente(frame: XRFrame): boolean {
+function colocarNaFrente(frame: XRFrame) {
   const referencia = renderer.xr.getReferenceSpace();
   if (!referencia) {
     return false;
@@ -148,31 +105,15 @@ function colocarNaFrente(frame: XRFrame): boolean {
 botaoVR.addEventListener('click', () => {
   ultimosPedidos = PEDIDOS_VR;
 });
+
 botaoAR.addEventListener('click', () => {
   ultimosPedidos = PEDIDOS_AR;
 });
 
-sondarNavegador().then(() => {
-  exibirSondaNaTela();
-});
-
 renderer.xr.addEventListener('sessionstart', () => {
-  const session = renderer.xr.getSession();
-  if (!session) {
-    return;
-  }
   if (ultimosPedidos === PEDIDOS_AR) {
     precisaColocarNaFrente = true;
   }
-
-  registrarRecursos(session, ultimosPedidos);
-  registrarFontesDeEntrada(session);
-  exibirSondaNaTela();
-
-  session.addEventListener('inputsourceschange', () => {
-    registrarFontesDeEntrada(session);
-    exibirSondaNaTela();
-  });
 });
 
 renderer.xr.addEventListener('sessionend', () => {
@@ -191,6 +132,7 @@ botaoEncaixar.addEventListener('click', () => {
     textoTroca.innerText = 'disjuntor-1 está numa vaga do trilho. Devolva ele para a bancada clicando nele e depois na mesa.';
     return;
   }
+
   let novoPai: THREE.Object3D;
   if (disjuntor.parent === xr.trilho) {
     novoPai = xr.tampo;
@@ -211,13 +153,21 @@ botaoEncaixar.addEventListener('click', () => {
 
 botaoMover.addEventListener('click', () => {
   xr.moverQuadro = !xr.moverQuadro;
-  botaoMover.innerText = xr.moverQuadro ? 'Parar o quadro' : 'Mover o quadro';
+  if (xr.moverQuadro) {
+    botaoMover.innerText = 'Parar o quadro';
+  } else {
+    botaoMover.innerText = 'Mover o quadro';
+  }
 });
 
 let maquinaLenta = false;
 botaoLenta.addEventListener('click', () => {
   maquinaLenta = !maquinaLenta;
-  botaoLenta.innerText = maquinaLenta ? 'Voltar à velocidade normal' : 'Simular máquina lenta';
+  if (maquinaLenta) {
+    botaoLenta.innerText = 'Voltar à velocidade normal';
+  } else {
+    botaoLenta.innerText = 'Simular máquina lenta';
+  }
 });
 
 const clock = new THREE.Clock();
@@ -237,12 +187,10 @@ renderer.setAnimationLoop((_timestamp, frame) => {
 
   xr.update(delta);
 
-  if (frame && precisaColocarNaFrente && colocarNaFrente(frame)) {
-    precisaColocarNaFrente = false;
-  }
-
-  if (frame && registrarGraus(frame, renderer.xr.getReferenceSpace())) {
-    exibirSondaNaTela();
+  if (frame && precisaColocarNaFrente) {
+    if (colocarNaFrente(frame)) {
+      precisaColocarNaFrente = false;
+    }
   }
 
   renderer.render(xr.scene, xr.camera);
@@ -252,11 +200,12 @@ renderer.setAnimationLoop((_timestamp, frame) => {
     orcamento.registrar(intervalo * 1000, custo);
   }
 
-  const teto = renderer.xr.isPresenting ? TETO_VISOR_MS : TETO_TELA_MS;
-  indicador.atualizar(
-    orcamento.linhas(teto, renderer.info.render.calls, renderer.info.render.triangles),
-    delta,
-  );
+  let teto = TETO_TELA_MS;
+  if (renderer.xr.isPresenting) {
+    teto = TETO_VISOR_MS;
+  }
+  const linhas = orcamento.linhas(teto, renderer.info.render.calls, renderer.info.render.triangles);
+  indicador.atualizar(linhas, delta);
 });
 
 window.addEventListener('resize', () => {

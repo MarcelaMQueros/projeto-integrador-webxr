@@ -5,11 +5,11 @@ const ALTURA_PX = 360;
 const INTERVALO_DE_DESENHO_S = 0.5;
 
 export class IndicadorDeCusto {
-  readonly malha: THREE.Mesh;
-  private tela: HTMLCanvasElement;
-  private pincel: CanvasRenderingContext2D;
-  private textura: THREE.CanvasTexture;
-  private tempoSemDesenhar = INTERVALO_DE_DESENHO_S;
+  malha: THREE.Mesh;
+  tela: HTMLCanvasElement;
+  pincel: CanvasRenderingContext2D;
+  textura: THREE.CanvasTexture;
+  tempoSemDesenhar = INTERVALO_DE_DESENHO_S;
 
   constructor() {
     this.tela = document.createElement('canvas');
@@ -26,16 +26,15 @@ export class IndicadorDeCusto {
     this.textura.minFilter = THREE.LinearFilter;
     this.textura.generateMipmaps = false;
 
-    this.malha = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.6, 0.34),
-      new THREE.MeshBasicMaterial({ map: this.textura }),
-    );
+    const geometria = new THREE.PlaneGeometry(0.6, 0.34);
+    const material = new THREE.MeshBasicMaterial({ map: this.textura });
+    this.malha = new THREE.Mesh(geometria, material);
     this.malha.name = 'indicador-de-custo';
 
     this.desenhar(['Aguardando o primeiro quadro']);
   }
 
-  atualizar(linhas: string[], delta: number): void {
+  atualizar(linhas: string[], delta: number) {
     this.tempoSemDesenhar += delta;
     if (this.tempoSemDesenhar < INTERVALO_DE_DESENHO_S) {
       return;
@@ -44,7 +43,7 @@ export class IndicadorDeCusto {
     this.desenhar(linhas);
   }
 
-  private desenhar(linhas: string[]): void {
+  desenhar(linhas: string[]) {
     this.pincel.fillStyle = '#0b0d12';
     this.pincel.fillRect(0, 0, LARGURA_PX, ALTURA_PX);
 
@@ -55,8 +54,8 @@ export class IndicadorDeCusto {
     this.pincel.fillStyle = '#ffffff';
     this.pincel.font = '28px sans-serif';
     let y = 100;
-    for (const linha of linhas) {
-      this.pincel.fillText(linha, 24, y);
+    for (let i = 0; i < linhas.length; i++) {
+      this.pincel.fillText(linhas[i], 24, y);
       y += 44;
     }
 

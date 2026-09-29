@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quadro Elétrico WebXR — Módulo 2 (Sonda)</title>
+    <style>
+      body {
+        margin: 0;
+        background-color: #111;
+        color: #fff;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      #info {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+        z-index: 100;
+      }
+
+      .painel {
+        position: absolute;
+        top: 50px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 15px;
+        border-radius: 8px;
+        z-index: 100;
+        font-size: 14px;
+        max-width: 340px;
+      }
+
+      .painel p {
+        margin: 4px 0;
+      }
+
+      @media (max-width: 800px) {
+        .painel {
+          font-size: 11px;
+          max-width: 60vw;
+          left: 6px;
+        }
+
+        #info {
+          display: none;
+        }
+      }
+
+      #app {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">Use os botões para entrar em VR ou AR</div>
+
+    <div id="painel-sonda-xr" class="painel">
+      <h3>Sonda WebXR</h3>
+      <p><strong>API WebXR:</strong> <span id="status-api">⏳ Carregando...</span></p>
+      <p><strong>Regime VR:</strong> <span id="status-vr">⏳ Carregando...</span></p>
+      <p><strong>Regime AR:</strong> <span id="status-ar">⏳ Carregando...</span></p>
+      <hr style="border-color: #444; margin: 12px 0;">
+      <h4>Durante a sessão</h4>
+      <div id="lista-recursos"></div>
+      <p><strong>Fontes de entrada:</strong> <span id="status-fontes">Sem sessão aberta</span></p>
+      <p><strong>Graus de liberdade:</strong> <span id="status-graus">Sem sessão aberta</span></p>
+    </div>
+
+    <div id="app"></div>
+
+    <script type="module" src="/src/demos/02_demo.ts"></script>
+  </body>
+</html>

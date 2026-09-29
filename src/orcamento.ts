@@ -5,10 +5,10 @@ export const TETO_DE_SALTO_S = 0.1;
 const QUADROS_NA_JANELA = 60;
 
 export class Orcamento {
-  private intervalos: number[] = [];
-  private custos: number[] = [];
+  intervalos: number[] = [];
+  custos: number[] = [];
 
-  registrar(intervaloMs: number, custoMs: number): void {
+  registrar(intervaloMs: number, custoMs: number) {
     this.intervalos.push(intervaloMs);
     this.custos.push(custoMs);
     if (this.intervalos.length > QUADROS_NA_JANELA) {
@@ -17,7 +17,7 @@ export class Orcamento {
     }
   }
 
-  linhas(tetoMs: number, chamadas: number, triangulos: number): string[] {
+  linhas(tetoMs: number, chamadas: number, triangulos: number) {
     if (this.intervalos.length === 0) {
       return ['Sem quadros medidos ainda'];
     }
@@ -38,12 +38,11 @@ export class Orcamento {
     const custoMedio = somaCustos / quantos;
     const porcentagem = (acimaDoTeto / quantos) * 100;
 
-    return [
-      'Teto: ' + tetoMs.toFixed(1) + ' ms',
-      'Intervalo medio: ' + intervaloMedio.toFixed(1) + ' ms (' + (1000 / intervaloMedio).toFixed(0) + ' fps)',
-      'Custo do quadro: ' + custoMedio.toFixed(2) + ' ms',
-      'Acima do teto: ' + porcentagem.toFixed(0) + '% de ' + quantos + ' quadros',
-      'Desenhos: ' + chamadas + '  Triangulos: ' + triangulos,
-    ];
+    const linha1 = 'Teto: ' + tetoMs.toFixed(1) + ' ms';
+    const linha2 = 'Intervalo medio: ' + intervaloMedio.toFixed(1) + ' ms (' + (1000 / intervaloMedio).toFixed(0) + ' fps)';
+    const linha3 = 'Custo do quadro: ' + custoMedio.toFixed(2) + ' ms';
+    const linha4 = 'Acima do teto: ' + porcentagem.toFixed(0) + '% de ' + quantos + ' quadros';
+    const linha5 = 'Desenhos: ' + chamadas + '  Triangulos: ' + triangulos;
+    return [linha1, linha2, linha3, linha4, linha5];
   }
 }

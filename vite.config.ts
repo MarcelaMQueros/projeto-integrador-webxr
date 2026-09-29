@@ -14,5 +14,11 @@ export default defineConfig({
   build: {
     target: 'es2020',
     sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        sonda: 'sonda.html',
+      },
+    },
   },
 });
